@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChessTree - Estrategia en la Oscuridad</title>
+    <link rel="icon" type="image/x-icon" href="/static/favicon/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Fondo oscuro con gradiente y reflejos sutiles */
+        body {
+            background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #21262d 100%);
+            color: #d1d5db;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Efecto de partículas brillantes en morado */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: rgba(168, 85, 247, 0.6);
+            border-radius: 50%;
+            animation: sparkle 8s linear infinite;
+        }
+
+        @keyframes sparkle {
+            0% { transform: translate(0, 0); opacity: 0.8; }
+            100% { transform: translate(100vw, 100vh); opacity: 0; }
+        }
+
+        /* Título con efecto de brillo pulsante en morado */
+        .title-glow {
+            animation: titleGlow 2s ease-in-out infinite;
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.8), 0 0 30px rgba(168, 85, 247, 0.4);
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 0 15px rgba(168, 85, 247, 0.8), 0 0 30px rgba(168, 85, 247, 0.4); }
+            50% { text-shadow: 0 0 25px rgba(168, 85, 247, 1), 0 0 40px rgba(168, 85, 247, 0.6); }
+        }
+
+        /* Subtítulo con desvanecimiento */
+        .subtitle-fade {
+            animation: fadeIn 3s ease-in-out forwards;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Botón con efecto de neón y reflejo en morado */
+        .btn-jugar {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(45deg, #7e22ce, #a855f7);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .btn-jugar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.8), 0 0 40px rgba(168, 85, 247, 0.5);
+        }
+
+        .btn-jugar::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 10%, transparent 50%);
+            transform: rotate(45deg);
+            transition: all 0.5s;
+            opacity: 0;
+        }
+
+        .btn-jugar:hover::after {
+            opacity: 1;
+            transform: rotate(45deg) translate(20%, 20%);
+        }
+
+        /* Imagen del tablero con efecto de iluminación en morado para resaltar */
+        .chessboard-img {
+            background: url('/static/favicon/chessboard.png') center/cover no-repeat;
+            border: 3px solid rgba(168, 85, 247, 0.4);
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.7), 0 0 50px rgba(168, 85, 247, 0.3);
+            transition: box-shadow 0.3s ease, transform 0.3s ease, border-color 0.3s ease;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chessboard-img:hover {
+            box-shadow: 0 0 40px rgba(168, 85, 247, 1), 0 0 80px rgba(168, 85, 247, 0.6);
+            border-color: rgba(168, 85, 247, 0.8);
+            transform: scale(1.05);
+        }
+
+        /* Fondo adicional para resaltar la imagen */
+        .chessboard-container {
+            position: relative;
+        }
+
+        .chessboard-container::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80%;
+            height: 80%;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, transparent 70%);
+            transform: translate(-50%, -50%);
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center relative">
+    <!-- Partículas brillantes de fondo -->
+    <div class="particles">
+        <script>
+            for (let i = 0; i < 60; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = `${Math.random() * 100}vw`;
+                particle.style.top = `${Math.random() * 100}vh`;
+                particle.style.animationDelay = `${Math.random() * 8}s`;
+                document.querySelector('.particles').appendChild(particle);
+            }
+        </script>
+    </div>
+
+    <header class="text-center py-12 z-10">
+        <h1 class="text-6xl md:text-8xl font-extrabold text-gray-200 title-glow">ChessTree</h1>
+        <p class="mt-4 text-xl md:text-3xl text-gray-400 subtitle-fade">
+            ¡Donde las estrategias brillan en la oscuridad!
+        </p>
+    </header>
+
+    <main class="flex flex-col md:flex-row items-center justify-center w-full max-w-6xl mx-auto px-6 z-10">
+        <!-- Sección de descripción -->
+        <div class="md:w-1/2 p-8">
+            <h2 class="text-4xl font-bold text-gray-200 mb-6">Conquista el Tablero</h2>
+            <p class="text-lg text-gray-300 mb-8 leading-relaxed">
+                ChessTree te sumerge en un mundo de ajedrez donde la estrategia y la pasión se encuentran. Enfréntate a oponentes globales, afina tus tácticas y siente la intensidad de cada jugada. Con un diseño oscuro y elegante, nuestra comunidad te invita a brillar en cada partida. ¡El tablero te espera para que dejes tu marca!
+            </p>
+            <a href="/chess" class="btn-jugar inline-block text-white font-bold py-4 px-8 rounded-xl shadow-xl hover:bg-purple-500 transition-all duration-300">
+                ¡Jugar Ahora!
+            </a>
+        </div>
+
+        <!-- Imagen del tablero con efecto de resaltado -->
+        <div class="md:w-1/2 p-8 chessboard-container">
+            <div class="chessboard-img w-full max-w-md h-64 md:h-96 rounded-lg"></div>
+        </div>
+    </main>
+
+    <footer class="mt-12 py-6 text-center text-gray-400 w-full">
+        <p>© 2025 ChessTree. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>
