@@ -94,7 +94,9 @@ boardLoader.load('/static/models/Tablero.glb', (gltf) => {
         }
     });
     scene.add(board);
+    setTimeout(() => {
     loadingScreen.style.display = 'none';
+}, 5000);
 }, undefined, (error) => {
     console.error('Error al cargar el tablero:', error);
 });
@@ -158,6 +160,14 @@ function getValidMovesForPiece(piece, position) {
     const [x, y] = position;
     const isWhite = piece.name.includes('Blanco');
 
+    // Verificar si se capturó un rey
+    function checkKingCapture(targetPiece) {
+        if (targetPiece && targetPiece.name.includes('Rey')) {
+            const isPlayerWinner = targetPiece.name.includes('Negro');
+            showGameOverMessage(isPlayerWinner);
+        }
+    }
+
     // Lógica para peones
     if (piece.name.includes('Peon')) {
         const direction = isWhite ? 1 : -1;
@@ -182,6 +192,7 @@ function getValidMovesForPiece(piece, position) {
                 const targetPiece = boardState[y + direction][x + dx];
                 if (targetPiece && targetPiece.name.includes(isWhite ? 'Negro' : 'Blanco')) {
                     moves.push({ position: [x + dx, y + direction], isCapture: true });
+                    checkKingCapture(targetPiece);
                 }
             }
         });
@@ -479,14 +490,25 @@ function initializeGame() {
     });
 }
 
+// Crear overlay y mensaje de victoria/derrota
+const gameOverOverlay = document.createElement('div');
+gameOverOverlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 2000;';
+
+const gameOverMessage = document.createElement('div');
+gameOverMessage.style.cssText = 'color: white; font-size: 72px; font-weight: bold; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);';
+
+gameOverOverlay.appendChild(gameOverMessage);
+document.body.appendChild(gameOverOverlay);
+
+
 // Botones de control
-const rotateButton = document.createElement('button');
-rotateButton.textContent = 'Rotar Tablero';
-rotateButton.style.cssText = 'position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; z-index: 1000;';
-document.body.appendChild(rotateButton);
+// const rotateButton = document.createElement('button');
+// rotateButton.textContent = 'Rotar Tablero';
+// rotateButton.style.cssText = 'position: fixed; bottom: 20px; right: 20px; padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; z-index: 1000;';
+// document.body.appendChild(rotateButton);
 
 const mirrorButton = document.createElement('button');
-mirrorButton.textContent = 'Espejo';
+mirrorButton.textContent = 'Mirror';
 mirrorButton.style.cssText = 'position: fixed; bottom: 20px; left: 20px; padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 16px; z-index: 1000;';
 document.body.appendChild(mirrorButton);
 
@@ -554,7 +576,7 @@ function mirrorBoard() {
 }
 
 // Eventos de los botones
-rotateButton.addEventListener('click', rotateBoard);
+// rotateButton.addEventListener('click', rotateBoard);
 mirrorButton.addEventListener('click', mirrorBoard);
 
 // Eventos del mouse
@@ -622,7 +644,7 @@ function onMouseDown(event) {
                             messageDiv.style.cssText = 'position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); padding: 20px; font-size: 48px; font-weight: bold; z-index: 1000; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);';
                             
                             if (capturedPiece.name.includes('Blanco')) {
-                                messageDiv.textContent = 'Ganador';
+                                messageDiv.textContent = 'Ganaste';
                                 messageDiv.style.color = '#4CAF50';
                             } else {
                                 messageDiv.textContent = 'Perdiste';
@@ -631,12 +653,13 @@ function onMouseDown(event) {
                             
                             document.body.appendChild(messageDiv);
                             
-                            // Eliminar todas las piezas después de 2 segundos
+                            // Eliminar todas las piezas después de 20 segundos
                             setTimeout(() => {
                                 [...pieces].forEach(piece => {
                                     scene.remove(piece);
                                     pieces.splice(pieces.indexOf(piece), 1);
                                 });
+                                  
                                 document.body.removeChild(messageDiv);
                                 
                                 // Limpiar el estado del tablero
@@ -645,7 +668,7 @@ function onMouseDown(event) {
                                         boardState[i][j] = null;
                                     }
                                 }
-                            }, 2000);
+                            }, 7000);
                         }
                     }
                 }
