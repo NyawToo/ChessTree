@@ -25,6 +25,7 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
     path('chess1/', TemplateView.as_view(template_name='chess_local.html'), name='chess1'),
     path('chess2/', TemplateView.as_view(template_name='chess_global.html'), name='chess2'),
+    path('chess_global/', TemplateView.as_view(template_name='chess_global.html'), name='chess_global'),
     path('sala/', TemplateView.as_view(template_name='sala.html'), name='sala'),
     path('crear/', TemplateView.as_view(template_name='crear_sala.html'), name='crear_sala'),
     path('unirme/', TemplateView.as_view(template_name='unirme_a_sala.html'), name='unirme_sala'),

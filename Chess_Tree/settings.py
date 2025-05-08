@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'channels',
     'Chess_Tree',
     'Alfil',
     'Caballo',
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
     'Reina',
     'Rey',
     'Torre',
+    'game',
 ]
 
 MIDDLEWARE = [
@@ -76,6 +78,13 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Chess_Tree.wsgi.application'
+ASGI_APPLICATION = 'Chess_Tree.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels.layers.InMemoryChannelLayer'
+    }
+}
 
 
 # Database
@@ -125,6 +134,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
 # Default primary key field type

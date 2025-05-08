@@ -82,10 +82,16 @@
     </div>
 
     <script>
+        function generarCodigoSala() {
+            const numeros = Array.from({length: 8}, () => Math.floor(Math.random() * 10)).join('');
+            return 'es' + numeros;
+        }
+
         function crearSala() {
             const roomName = document.getElementById('room-name').value;
             if (roomName) {
-                alert(`Sala "${roomName}" creada. ¡Implementar lógica aquí!`);
+                const codigoSala = generarCodigoSala();
+                window.location.href = `/chess_global/?sala=${codigoSala}&nombre=${encodeURIComponent(roomName)}`;
             } else {
                 alert('Por favor, ingresa un nombre para la sala.');
             }

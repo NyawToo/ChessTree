@@ -83,13 +83,24 @@
     </div>
 
     <script>
+        function validarCodigoSala(codigo) {
+            return /^es\d{8}$/.test(codigo);
+        }
+
         function unirseSala() {
             const roomCode = document.getElementById('room-code').value;
-            if (roomCode) {
-                alert(`Intentando unirse a la sala con código "${roomCode}". ¡Implementar lógica aquí!`);
-            } else {
+            if (!roomCode) {
                 alert('Por favor, ingresa un código de sala.');
+                return;
             }
+            
+            if (!validarCodigoSala(roomCode)) {
+                alert('El código de sala debe comenzar con "es" seguido de 8 números.');
+                return;
+            }
+
+            // Redirigir a la sala de juego con el color del jugador (siempre será Negro al unirse)
+            window.location.href = `/chess_global/?sala=${roomCode}&color=Negro`;
         }
     </script>
 </body>
