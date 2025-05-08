@@ -8,146 +8,61 @@ import { FontLoader } from 'three/examples/jsm/loaders/FontLoader.js';
 // Configuración de WebSocket y estado del juego
 const urlParams = new URLSearchParams(window.location.search);
 const salaId = urlParams.get('sala');
-const playerColor = urlParams.get('color') || 'Blanco';
+const playerColor = urlParams.get('color');
+const isCreator = urlParams.get('creator') === 'true';
+// El color se obtiene directamente de la URL
 const ws = new WebSocket(`ws://${window.location.host}/ws/chess/${salaId}/`);
 let currentTurn = 'Blanco';
 
-// Configurar reconexión automática del WebSocket
-let wsReconnectInterval = null;
+// Crear y mostrar el contenedor del equipo inmediatamente
+const teamContainer = document.createElement('div');
+teamContainer.id = 'teamContainer';
+teamContainer.style.cssText = 'position: fixed; top: 50%; left: 20px; transform: translateY(-50%); color: white; font-family: Arial; font-size: 28px; font-weight: bold; background: rgba(0,0,0,0.95); padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 20px rgba(255,255,255,0.2); z-index: 1000; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;';
 
-function setupWebSocket() {
-    ws.onopen = function() {
-        console.log('Conexión WebSocket establecida');
-        clearInterval(wsReconnectInterval);
-    };
+// Definir el color del borde según el equipo
+const borderColor = playerColor === 'Blanco' ? '#ffffff' : '#444444';
 
-    ws.onclose = function() {
-        console.log('Conexión WebSocket cerrada, intentando reconectar...');
-        wsReconnectInterval = setInterval(() => {
-            if (ws.readyState === WebSocket.CLOSED) {
-                const newWs = new WebSocket(`ws://${window.location.host}/ws/chess/${salaId}/`);
-                Object.assign(ws, newWs);
-            }
-        }, 5000);
-    };
-}
+// Actualizar el contenido y estilos del contenedor
+teamContainer.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+    <span style="font-size: 20px; opacity: 0.9;">Tu equipo:</span>
+    <span style="font-size: 32px; text-transform: uppercase; color: ${playerColor === 'Blanco' ? '#ffffff' : '#666666'}; text-shadow: 0 0 10px ${playerColor === 'Blanco' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)'}">${playerColor}</span>
+</div>`;
 
-// Función para actualizar el indicador de turno
-function updateTurnIndicator() {
-    const turnIndicator = document.getElementById('turnIndicator');
-    if (turnIndicator) {
-        turnIndicator.textContent = `Turno: ${currentTurn}`;
-        turnIndicator.style.color = currentTurn === playerColor ? '#4CAF50' : '#ff0000';
-        // Deshabilitar interacción cuando no es el turno del jugador
-        if (currentTurn !== playerColor) {
-            scene.traverse((object) => {
-                if (object.isMesh && object.userData.isPiece) {
-                    object.userData.clickable = false;
-                }
-            });
-        } else {
-            scene.traverse((object) => {
-                if (object.isMesh && object.userData.isPiece && object.name.includes(playerColor)) {
-                    object.userData.clickable = true;
-                }
-            });
-        }
-    }
-    // Forzar actualización del renderizado
-    renderer.render(scene, camera);
-}
+teamContainer.style.border = `3px solid ${borderColor}`;
+teamContainer.style.backgroundColor = playerColor === 'Blanco' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.95)';
+teamContainer.style.textShadow = '2px 2px 4px rgba(0,0,0,0.7)';
 
-// Función para verificar el estado del juego
-function checkGameState() {
-    // Verificar si hay jaque mate
-    const kings = pieces.filter(piece => piece.name.includes('Rey'));
-    if (kings.length < 2) {
-        const winner = kings[0].name.includes('Blanco') ? 'Blanco' : 'Negro';
-        showGameOverMessage(winner === playerColor);
-    }
-    // Forzar actualización del renderizado
-    renderer.render(scene, camera);
-}
+// Añadir efecto hover
+teamContainer.addEventListener('mouseover', () => {
+    teamContainer.style.transform = 'translateY(-50%) scale(1.05)';
+    teamContainer.style.boxShadow = `0 6px 20px rgba(0,0,0,0.7), 0 0 15px ${borderColor}40`;
+});
+teamContainer.addEventListener('mouseout', () => {
+    teamContainer.style.transform = 'translateY(-50%)';
+    teamContainer.style.boxShadow = '0 4px 15px rgba(0,0,0,0.5)';
+});
+document.body.appendChild(teamContainer);
 
-let gameInitialized = false;
+// Crear el contenedor para mostrar el equipo en la parte inferior izquierda
+const teamInfoContainer = document.createElement('div');
+teamInfoContainer.style.cssText = 'position: fixed; bottom: 20px; left: 20px; color: white; font-family: Arial; font-size: 16px; background: rgba(0,0,0,0.7); padding: 10px 20px; border-radius: 5px; z-index: 1000; display: flex; align-items: center;';
+teamInfoContainer.innerHTML = `Equipo: <span style="color: ${playerColor === 'Blanco' ? '#ffffff' : '#666666'}; margin-left: 5px; font-weight: bold;">${playerColor}</span>`;
+document.body.appendChild(teamInfoContainer);
 
-ws.onmessage = function(event) {
-    const data = JSON.parse(event.data);
-    console.log('Mensaje WebSocket recibido:', data);
-    
-    if (data.type === 'move') {
-        const { from, to, piece } = data;
-        console.log('Movimiento recibido:', { from, to, piece });
-        
-        // Verificar si el movimiento es válido antes de aplicarlo
-        if (!gameInitialized) {
-            gameInitialized = true;
-        }
-        
-        // Actualizar el tablero con el movimiento recibido
-        const pieceToMove = boardState[from[1]][from[0]];
-        if (pieceToMove) {
-            console.log('Moviendo pieza:', pieceToMove);
-            
-            // Actualizar el estado del tablero
-            const oldPosition = boardState[from[1]][from[0]];
-            boardState[from[1]][from[0]] = null;
-            boardState[to[1]][to[0]] = oldPosition;
-            
-            // Mover la pieza en el tablero 3D
-            pieceToMove.position.set(
-                3.5 - to[0] * SQUARE_SIZE,
-                pieceToMove.position.y,
-                -3.5 + to[1] * SQUARE_SIZE
-            );
-            
-            // Actualizar la rotación si es necesario
-            if (piece.includes('Rey') || piece.includes('Reina')) {
-                pieceToMove.rotation.y = Math.PI / 2;
-            }
-            
-            // Limpiar los marcadores después del movimiento
-            clearMarkers();
-            
-            // Actualizar el turno y el estado visual
-            const isWhitePiece = piece.includes('Blanco');
-            currentTurn = isWhitePiece ? 'Negro' : 'Blanco';
-            console.log('Turno actualizado a:', currentTurn);
-            
-            // Actualizar la visualización del turno actual
-            updateTurnIndicator();
-            
-            // Verificar si hay jaque mate
-            checkGameState();
-            
-            // Forzar la actualización del renderizado
-            renderer.render(scene, camera);
-        } else {
-            console.error('No se encontró la pieza en la posición:', from);
-        }
-    } else if (data.type === 'game_state') {
-        // Recibir estado inicial del juego
-        if (!gameInitialized) {
-            initializeGameState(data.state);
-            gameInitialized = true;
-        }
-    }
-};
+// Asegurar que el contenedor principal sea visible
+teamContainer.style.display = 'flex';
+teamContainer.style.visibility = 'visible';
+teamContainer.style.opacity = '1';
 
-ws.onclose = function(e) {
-    console.log('WebSocket cerrado:', e);
-};
-
-ws.onerror = function(err) {
-    console.error('Error de WebSocket:', err);
-};
-
-// Cache para almacenar los modelos cargados
-const modelCache = new Map();
-
-// Elementos de la pantalla de carga
-const loadingScreen = document.createElement('div');
-loadingScreen.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 1000;';
+// Añadir efecto hover
+teamContainer.addEventListener('mouseover', () => {
+    teamContainer.style.transform = 'translateY(-50%) scale(1.05)';
+    teamContainer.style.boxShadow = `0 6px 20px rgba(0,0,0,0.7), 0 0 15px ${borderColor}40`;
+});
+teamContainer.addEventListener('mouseout', () => {
+    teamContainer.style.transform = 'translateY(-50%)';
+    teamContainer.style.boxShadow = '0 4px 15px rgba(0,0,0,0.5)';
+});
 
 const loadingText = document.createElement('h2');
 loadingText.style.cssText = 'color: white; margin-bottom: 20px;';
@@ -294,6 +209,16 @@ function showValidMoves(piece, position) {
 // Función para mover una pieza y enviar la actualización por WebSocket
 function movePiece(from, to, piece) {
     if (!piece || !boardState[from[1]][from[0]]) return;
+    
+    // Verificar si es el turno del jugador y si la pieza es de su color
+    const isWhitePiece = piece.name.includes('Blanco');
+    const isCorrectColor = (playerColor === 'Blanco' && isWhitePiece) || 
+                          (playerColor === 'Negro' && !isWhitePiece);
+    
+    if (!isCorrectColor || currentTurn !== playerColor) {
+        console.log('No es tu turno o no puedes mover las piezas del oponente');
+        return;
+    }
 
     // Limpiar la posición anterior si hay una pieza en la posición destino
     if (boardState[to[1]][to[0]]) {
