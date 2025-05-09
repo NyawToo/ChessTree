@@ -41,7 +41,49 @@ teamContainer.addEventListener('mouseout', () => {
     teamContainer.style.transform = 'translateY(-50%)';
     teamContainer.style.boxShadow = '0 4px 15px rgba(0,0,0,0.5)';
 });
+
 document.body.appendChild(teamContainer);
+
+
+// Actualizar el color del contenedor según el equipo
+teamContainer.style.border = `3px solid ${borderColor}`;
+teamContainer.style.backgroundColor = playerColor === 'Blanco' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.95)';
+teamContainer.style.textShadow = '2px 2px 4px rgba(0,0,0,0.7)';
+
+// Añadir efecto hover
+teamContainer.addEventListener('mouseover', () => {
+    teamContainer.style.transform = 'translateY(-50%) scale(1.05)';
+    teamContainer.style.boxShadow = `0 6px 20px rgba(0,0,0,0.7), 0 0 15px ${borderColor}40`;
+});
+teamContainer.addEventListener('mouseout', () => {
+    teamContainer.style.transform = 'translateY(-50%)';
+    teamContainer.style.boxShadow = '0 4px 15px rgba(0,0,0,0.5)';
+});
+
+// Crear el contenedor para el equipo
+const teamContainer = document.createElement('div');
+teamContainer.style.cssText = 'position: fixed; top: 50%; left: 20px; transform: translateY(-50%); color: white; font-family: Arial; font-size: 28px; font-weight: bold; background: rgba(0,0,0,0.95); padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 20px rgba(255,255,255,0.2); z-index: 1000; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;';
+teamContainer.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; gap: 10px;">
+    <span style="font-size: 20px; opacity: 0.9;">Tu equipo:</span>
+    <span style="font-size: 32px; text-transform: uppercase; color: ${playerColor === 'Blanco' ? '#ffffff' : '#666666'}; text-shadow: 0 0 10px ${playerColor === 'Blanco' ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.5)'}">${playerColor}</span>
+</div>`;
+document.body.appendChild(teamContainer);
+
+
+// Actualizar el color del contenedor según el equipo
+teamContainer.style.border = `3px solid ${borderColor}`;
+teamContainer.style.backgroundColor = playerColor === 'Blanco' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.95)';
+teamContainer.style.textShadow = '2px 2px 4px rgba(0,0,0,0.7)';
+
+// Añadir efecto hover
+teamContainer.addEventListener('mouseover', () => {
+    teamContainer.style.transform = 'translateY(-50%) scale(1.05)';
+    teamContainer.style.boxShadow = `0 6px 20px rgba(0,0,0,0.7), 0 0 15px ${borderColor}40`;
+});
+teamContainer.addEventListener('mouseout', () => {
+    teamContainer.style.transform = 'translateY(-50%)';
+    teamContainer.style.boxShadow = '0 4px 15px rgba(0,0,0,0.5)';
+});
 
 // Crear el contenedor para mostrar el equipo en la parte inferior izquierda
 const teamInfoContainer = document.createElement('div');

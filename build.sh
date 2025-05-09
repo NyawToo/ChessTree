@@ -11,5 +11,8 @@ python manage.py collectstatic --no-input
 # Aplicar migraciones
 python manage.py migrate
 
+# Asegurarse de que PORT tenga un valor predeterminado si no está definido
+export PORT=${PORT:-8000}
+
 # Iniciar Daphne
-daphne -b 0.0.0.0 -p $PORT Chess_Tree.asgi:application
+exec daphne -b 0.0.0.0 -p $PORT Chess_Tree.asgi:application
