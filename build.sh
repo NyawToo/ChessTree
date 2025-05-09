@@ -2,11 +2,11 @@
 # exit on error
 set -o errexit
 
-# Instalar dependencias de Python
+# Install Python dependencies
 pip install -r requirements.txt
 
-# Recolectar archivos estáticos
+# Collect static files
 python manage.py collectstatic --no-input
 
-# Aplicar migraciones
+# Apply migrations
 python manage.py migrate
