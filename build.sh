@@ -10,6 +10,3 @@ python manage.py collectstatic --no-input
 
 # Aplicar migraciones
 python manage.py migrate
-
-# # Iniciar Daphne
-# daphne -b 0.0.0.0 -p $PORT Chess_Tree.asgi:application
