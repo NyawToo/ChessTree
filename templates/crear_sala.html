@@ -91,7 +91,7 @@
             const roomName = document.getElementById('room-name').value;
             if (roomName) {
                 const codigoSala = generarCodigoSala();
-                window.location.href = `/chess_global/?sala=${codigoSala}&nombre=${encodeURIComponent(roomName)}`;
+                window.location.href = `/chess_global/?sala=${codigoSala}&nombre=${encodeURIComponent(roomName)}&color=Blanco`;
             } else {
                 alert('Por favor, ingresa un nombre para la sala.');
             }
